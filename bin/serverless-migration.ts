@@ -2,19 +2,41 @@
 import * as cdk from 'aws-cdk-lib';
 import { ServerlessMigrationStack } from '../lib/serverless-migration-stack';
 
+// Define stage-specific environment variables
+const stageConfig: { [key: string]: { account: string; region: string } } = {
+  dev: {
+    account: process.env.DEV_ACCOUNT_ID || '',
+    region: process.env.DEV_REGION || '',
+  },
+  qa: {
+    account: process.env.DEV_ACCOUNT_ID || '',
+    region: process.env.DEV_REGION || '',
+  },
+  prod: {
+    account: process.env.PROD_ACCOUNT_ID || '',
+    region: process.env.PROD_REGION || '',
+  },
+};
+
+const stage = process.env.STAGE || 'dev';
+
+if (!stageConfig[stage]) {
+  throw new Error(`Invalid stage: ${stage}. Valid stages are: ${Object.keys(stageConfig).join(', ')}`);
+}
+
+if (!stageConfig[stage].account || !stageConfig[stage].region) {
+  throw new Error(`Missing environment variables for stage: ${stage}`);
+}
+
+// Create the CDK App
 const app = new cdk.App();
-new ServerlessMigrationStack(app, 'ServerlessMigrationStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
 
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+// Pass configuration values
+new ServerlessMigrationStack(app, `serverless-migration-${stage}`, {
 
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
+  env: {
+    account: stageConfig[stage].account,
+    region: stageConfig[stage].region,
+  },
 
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
