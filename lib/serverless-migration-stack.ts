@@ -1,9 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
-import * as s3 from 'aws-cdk-lib/aws-s3';
 import { S3BucketStack } from './buckets';
 import { LambdaStack } from './lambdas';
+import { StepFunctionsStack } from './step-functions';
+import { EventBridgeStack } from './eventbridge';
 
 interface ServerlessMigrationStackProps extends cdk.StackProps {
 	stage: string;
@@ -22,9 +23,9 @@ export class ServerlessMigrationStack extends cdk.Stack {
 				env: props.env,
 				stage
 			}
-		)
+		);
 
-		new LambdaStack(
+		const lambdaStack = new LambdaStack(
 			scope,
 			`${id}-lambda-stack`,
 			{
@@ -32,7 +33,23 @@ export class ServerlessMigrationStack extends cdk.Stack {
 				bucket: s3BucketStack.bucket,
 				stage: stage
 			}
-		)
+		);
+
+		// Create Step Functions State Machine
+		const stepFunctionsStack = new StepFunctionsStack(scope, 'StepFunctionsStack', {
+			extractionLambda: lambdaStack.extractionLambda,
+			consolidationLambda: lambdaStack.consolidationLambda,
+		});
+
+		// Create EventBridge Rule
+		new EventBridgeStack(scope, 'EventBridgeStack', {
+			extractionLambda: lambdaStack.extractionLambda,
+		});
+
+		// Output the State Machine ARN
+		new cdk.CfnOutput(this, 'StateMachineArn', {
+			value: stepFunctionsStack.stateMachine.stateMachineArn,
+		});
 
 	}
 }

@@ -40,9 +40,13 @@ export class LambdaStack extends cdk.Stack {
 			code: lambda.Code.fromAsset('src'),
 			timeout: cdk.Duration.seconds(30),
 			environment: {
-				STAGE: props.stage
+				STAGE: props.stage,
+				BUCKET_NAME: props.bucket.bucketName
 			}
 		});
+
+		// Grant S3 permissions to the Consolidation Lambda
+		props.bucket.grantRead(this.consolidationLambda);
 	}
 
 }
