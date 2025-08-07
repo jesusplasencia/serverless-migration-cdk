@@ -36,15 +36,23 @@ export class ServerlessMigrationStack extends cdk.Stack {
 		);
 
 		// Create Step Functions State Machine
-		const stepFunctionsStack = new StepFunctionsStack(scope, 'StepFunctionsStack', {
-			extractionLambda: lambdaStack.extractionLambda,
-			consolidationLambda: lambdaStack.consolidationLambda,
-		});
+		const stepFunctionsStack = new StepFunctionsStack(
+			scope,
+			`${id}-step-functions-stack`,
+			{
+				extractionLambda: lambdaStack.extractionLambda,
+				consolidationLambda: lambdaStack.consolidationLambda,
+			}
+		);
 
 		// Create EventBridge Rule
-		new EventBridgeStack(scope, 'EventBridgeStack', {
-			extractionLambda: lambdaStack.extractionLambda,
-		});
+		new EventBridgeStack(
+			scope,
+			`${id}-event-bridge-stack`,
+			{
+				extractionLambda: lambdaStack.extractionLambda,
+			}
+		);
 
 		// Output the State Machine ARN
 		new cdk.CfnOutput(this, 'StateMachineArn', {

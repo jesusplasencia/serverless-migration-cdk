@@ -30,7 +30,8 @@ export class StepFunctionsStack extends cdk.Stack {
     const definition = extractionTask.next(consolidationTask);
 
     // Create the state machine
-    this.stateMachine = new stepfunctions.StateMachine(this, 'StateMachine', {
+    this.stateMachine = new stepfunctions.StateMachine(this, `StateMachine`, {
+      stateMachineName: `${id}-stateMachine`,
       definitionBody: stepfunctions.DefinitionBody.fromChainable(definition)
     });
   }
