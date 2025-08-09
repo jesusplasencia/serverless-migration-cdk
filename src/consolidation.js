@@ -1,8 +1,5 @@
-
 exports.handler = async (event) => {
-
   console.log(event);
-  
   try {
     // Perform data consolidation logic
     const consolidatedData = { message: 'Data consolidated successfully', timestamp: new Date().toISOString() };

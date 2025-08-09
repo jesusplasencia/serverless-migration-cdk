@@ -1,8 +1,5 @@
-
 exports.handler = async (event) => {
-	
 	console.log(event);
-	
 	try {
 		// Perform data extraction logic
 		const extractedData = { message: 'Data extracted successfully', timestamp: new Date().toISOString() };
